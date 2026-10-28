@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="ku" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BFilm Mobile - سینەما د مۆبایلا تە دا</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;500;600;700;800;900&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#FF0033',
+                            brightRed: '#DC2626',
+                            darkRed: '#7F1D1D',
+                            pureBlack: '#050505',
+                            cardBlack: '#0D0D12',
+                            surfaceBlack: '#14141C',
+                            borderDark: '#262636',
+                            crispWhite: '#FFFFFF',
+                            softGray: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Naskh Arabic', 'Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: #050505;
+            color: #FFFFFF;
+            font-family: 'Noto Naskh Arabic', sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+            padding-bottom: 96px; /* Height for mobile bottom nav */
+        }
+
+        /* Mobile Scrollbar */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF0033;
+            border-radius: 9999px;
+        }
+
+        /* Glassmorphic Mobile Visual Depth Effects */
+        .glow-red-mobile {
+            box-shadow: 0 0 25px rgba(255, 0, 51, 0.45);
+        }
+        .glow-red-button {
+            box-shadow: 0 4px 20px rgba(255, 0, 51, 0.5);
+        }
+        .glass-card {
+            background: rgba(13, 13, 18, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(255, 0, 51, 0.25);
+        }
+        .glass-card-active {
+            background: linear-gradient(145deg, rgba(127, 29, 29, 0.3) 0%, rgba(13, 13, 18, 0.98) 100%);
+            border: 2px solid #FF0033;
+        }
+
+        /* Soundwave Mic Indicator for Mobile */
+        .sound-bar {
+            width: 4px;
+            background-color: #FF0033;
+            border-radius: 9999px;
+            animation: soundAnim 0.5s infinite ease-in-out alternate;
+        }
+        .sound-bar:nth-child(1) { height: 10px; animation-delay: 0.1s; }
+        .sound-bar:nth-child(2) { height: 22px; animation-delay: 0.3s; }
+        .sound-bar:nth-child(3) { height: 14px; animation-delay: 0.2s; }
+        .sound-bar:nth-child(4) { height: 26px; animation-delay: 0.4s; }
+
+        @keyframes soundAnim {
+            0% { height: 8px; opacity: 0.3; }
+            100% { height: 26px; opacity: 1; }
+        }
+
+        input[type="range"] {
+            accent-color: #FF0033;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-right dir-rtl" dir="rtl">
+
+    <!-- FIXED MOBILE HEADER -->
+    <header class="sticky top-0 z-40 bg-black/95 backdrop-blur-md border-b-2 border-brand-red px-4 py-3 shadow-xl">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('rooms')">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-darkRed via-brand-red to-white p-0.5 shadow-lg glow-red-mobile flex items-center justify-center">
+                    <div class="w-full h-full bg-black rounded-[14px] flex items-center justify-center">
+                        <i class="fa-solid fa-play text-brand-red text-xl ml-0.5"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider text-white">
+                        B<span class="text-brand-red">Film</span>
+                    </h1>
+                    <p class="text-[10px] text-gray-300 font-extrabold -mt-1">سینەما د مۆبایلا تە دا</p>
+                </div>
+            </div>
+
+            <!-- Active User Avatar Header Badge -->
+            <div id="headerUserArea" class="hidden items-center">
+                <div onclick="navigateTo('profile')" class="flex items-center gap-2 bg-brand-surfaceBlack border border-gray-800 p-1.5 pr-3 rounded-full cursor-pointer transition active:scale-95">
+                    <span id="headerNickname" class="text-xs font-black text-white max-w-[90px] truncate">...</span>
+                    <img id="headerAvatar" src="" class="w-8 h-8 rounded-full object-cover border-2 border-brand-red">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN MOBILE CONTAINER -->
+    <main class="flex-1 max-w-md w-full mx-auto p-4">
+
+        <!-- AUTHENTICATION VIEW (SIGN IN / SIGN UP) -->
+        <section id="viewAuth" class="my-4 space-y-6">
+            <div class="glass-card p-6 rounded-3xl border-2 border-brand-red shadow-2xl relative overflow-hidden">
+                
+                <!-- Auth Tabs -->
+                <div class="flex border-b-2 border-gray-800 mb-6">
+                    <button id="btnTabLogin" onclick="switchAuthTab('login')" class="flex-1 py-3 text-lg font-black text-brand-red border-b-2 border-brand-red transition">
+                        چوونا ژوور
+                    </button>
+                    <button id="btnTabSignup" onclick="switchAuthTab('signup')" class="flex-1 py-3 text-lg font-black text-gray-400 border-b-2 border-transparent transition">
+                        دروستکرنا هەژمارێ
+                    </button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <form id="formLogin" onsubmit="handleLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">ناڤێ بکارئینەری (Username)</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute right-4 top-4 text-gray-400 text-base"></i>
+                            <input type="text" id="loginUsername" required placeholder="username" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl pr-11 pl-4 py-3.5 text-base text-white placeholder-gray-600 focus:outline-none font-bold">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">پەیڤا نهێنی (Password)</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-lock absolute right-4 top-4 text-gray-400 text-base"></i>
+                            <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl pr-11 pl-4 py-3.5 text-base text-white placeholder-gray-600 focus:outline-none font-bold">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-brand-darkRed via-brand-red to-white text-white font-black text-lg py-4 rounded-2xl shadow-lg glow-red-button transition active:scale-95 flex items-center justify-center gap-3 mt-4">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>بچۆ ژوور ڤە</span>
+                    </button>
+                </form>
+
+                <!-- SIGNUP FORM -->
+                <form id="formSignup" onsubmit="handleSignup(event)" class="hidden space-y-4">
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">ناڤێ تە یێ دیار (Nickname)</label>
+                        <input type="text" id="signupNickname" required placeholder="ناڤێ تە" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3.5 text-base text-white focus:outline-none font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">ناڤێ بکارئینەری (Username)</label>
+                        <input type="text" id="signupUsername" required placeholder="username" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3.5 text-base text-white focus:outline-none font-bold">
+                    </div>
+
+                    <!-- MOBILE PHOTO UPLOAD -->
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">وێنەیێ پڕۆفایلی (ژ ئامێرێ تە)</label>
+                        <div class="flex items-center gap-4 p-3 bg-black rounded-2xl border-2 border-gray-800">
+                            <img id="signupAvatarPreview" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80" class="w-14 h-14 rounded-full border-2 border-brand-red object-cover flex-shrink-0">
+                            <div class="flex-1">
+                                <label for="signupAvatarFileInput" class="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-brand-red hover:bg-brand-brightRed border border-brand-red rounded-xl text-xs font-black text-white cursor-pointer active:scale-95">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <span>هەلبژارتنا وێنەیی</span>
+                                </label>
+                                <input type="file" id="signupAvatarFileInput" accept="image/*" required onchange="handleAvatarFileUpload(this)" class="hidden">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">پەیڤا نهێنی (ل کێمتری 8 پیت)</label>
+                        <input type="password" id="signupPassword" required minlength="8" placeholder="••••••••" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3.5 text-base text-white focus:outline-none font-bold">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-black text-white mb-2">دووپاتکرنا پەیڤا نهێنی</label>
+                        <input type="password" id="signupPasswordConfirm" required minlength="8" placeholder="••••••••" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3.5 text-base text-white focus:outline-none font-bold">
+                    </div>
+
+                    <button type="submit" class="w-full bg-gradient-to-r from-brand-darkRed via-brand-red to-white text-white font-black text-lg py-4 rounded-2xl shadow-lg glow-red-button transition active:scale-95 flex items-center justify-center gap-3 mt-4">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>تۆماربوون و چوونا ژوورێ</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ROOMS LOBBY VIEW (STRICTLY Dynamic Rooms, No Fake Preset Rooms) -->
+        <section id="viewRooms" class="hidden space-y-6">
+            <!-- Search & Action Header -->
+            <div class="flex items-center gap-3">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute right-4 top-3.5 text-gray-500 text-sm"></i>
+                    <input type="text" id="searchRoomsInput" onkeyup="filterRooms()" placeholder="لێگەڕیانا ژووران..." class="w-full bg-brand-surfaceBlack border-2 border-gray-800 focus:border-brand-red rounded-2xl pr-10 pl-4 py-3 text-sm text-white focus:outline-none font-bold">
+                </div>
+                <button onclick="openCreateRoomModal()" class="bg-brand-red hover:bg-brand-brightRed text-white p-3.5 rounded-2xl font-black transition active:scale-95 glow-red-button flex-shrink-0" title="دروستکرنا ژوورێ">
+                    <i class="fa-solid fa-plus text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Public Rooms Section -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-earth-americas text-brand-red"></i>
+                        <span>ژوورێن گشتی</span>
+                    </h3>
+                    <span id="publicRoomsCountTag" class="text-xs bg-black border border-gray-800 text-gray-300 px-3 py-1 rounded-full font-black">0 ژوور</span>
+                </div>
+
+                <!-- Dynamic Grid container: Empty state by default -->
+                <div id="publicRoomsGrid" class="space-y-4">
+                    <!-- Dynamic user created rooms render here -->
+                </div>
+            </div>
+
+            <!-- Join Private Room By Code -->
+            <div class="glass-card p-5 rounded-3xl border border-gray-800 space-y-4">
+                <h4 class="text-base font-black text-white flex items-center gap-2">
+                    <i class="fa-solid fa-key text-brand-red"></i>
+                    <span>چوونا ژوورەکا تایبەت ب کۆدی</span>
+                </h4>
+                <form onsubmit="handleJoinByCode(event)" class="flex gap-2">
+                    <input type="text" id="inputRoomCode" required placeholder="کۆدێ ژوورێ (م.ت. FILM123)" class="flex-1 bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white font-mono uppercase focus:outline-none font-bold">
+                    <button type="submit" class="bg-brand-red hover:bg-brand-brightRed text-white px-5 py-3 rounded-2xl font-black transition active:scale-95 glow-red-button">
+                        <i class="fa-solid fa-door-open"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ACTIVE WATCH ROOM (MOBILE THEATER VIEW) -->
+        <section id="viewActiveRoom" class="hidden space-y-4">
+            <!-- Room Top Bar -->
+            <div class="flex items-center justify-between bg-brand-surfaceBlack p-3 rounded-2xl border border-gray-800">
+                <div class="flex items-center gap-3">
+                    <button onclick="leaveActiveRoom()" class="bg-gray-900 hover:bg-brand-red text-gray-200 hover:text-white p-2.5 rounded-xl transition border border-gray-700 active:scale-95">
+                        <i class="fa-solid fa-arrow-right text-base"></i>
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h2 id="activeRoomTitle" class="text-base font-black text-white truncate max-w-[140px]">ژوور</h2>
+                            <span id="activeRoomPrivacyBadge" class="bg-brand-red/20 border border-brand-red text-brand-red text-[10px] font-black px-2 py-0.5 rounded-full">گشتی</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs text-gray-400 mt-0.5">
+                            <span id="activeRoomOwner" class="truncate max-w-[100px]">خۆدان: ...</span>
+                            <span>•</span>
+                            <span id="activeRoomCodeBadge" class="font-mono text-brand-red font-bold">----</span>
+                            <button onclick="copyRoomCode()" class="text-gray-400 hover:text-white" title="کۆپیکرنا کۆدی">
+                                <i class="fa-solid fa-copy text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Voice Chat Toggle -->
+                <button id="btnToggleMic" onclick="toggleMicrophone()" class="bg-gray-900 hover:bg-gray-800 text-white px-3.5 py-2.5 rounded-2xl text-xs font-black transition flex items-center gap-2 border border-gray-700 active:scale-95">
+                    <i id="iconMic" class="fa-solid fa-microphone-slash text-brand-red text-sm"></i>
+                    <span id="textMic">دەنگ</span>
+                </button>
+            </div>
+
+            <!-- Voice Chat Master Volume Slider -->
+            <div class="glass-card p-3 rounded-2xl border border-gray-800 flex items-center justify-between gap-3">
+                <i class="fa-solid fa-headset text-white text-base"></i>
+                <div class="flex-1 space-y-1">
+                    <div class="flex justify-between text-xs font-black text-gray-300">
+                        <span>دەنگێ ئاخوفتنا هەڤالان</span>
+                        <span id="voiceVolTag" class="text-brand-red font-extrabold">100%</span>
+                    </div>
+                    <input type="range" id="voiceVolSlider" min="0" max="100" value="100" oninput="adjustVoiceVolume(this.value)" class="w-full h-2 bg-gray-800 rounded-lg appearance-none cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Video Screen Canvas -->
+            <div class="relative bg-black rounded-3xl overflow-hidden border-2 border-brand-red shadow-2xl">
+                <div class="absolute top-3 left-3 z-20 flex items-center gap-2 pointer-events-none">
+                    <span class="bg-brand-red text-white text-[10px] font-black px-2.5 py-1 rounded-xl shadow border border-white/30">
+                        <i class="fa-solid fa-shield-halved"></i> No Ads
+                    </span>
+                    <span id="badgeVideoQuality" class="bg-black/80 text-white text-[10px] font-black px-2.5 py-1 rounded-xl border border-gray-800">
+                        4K Ultra HD
+                    </span>
+                </div>
+
+                <video id="mainVideoPlayer" controls class="w-full aspect-video bg-black object-contain min-h-[210px]" crossorigin="anonymous">
+                    <source id="mainVideoSource" src="" type="video/mp4">
+                    وێبساپتا تە پشتگیرییا پەڕگەیێن ڤیدیۆیێ ناکەت.
+                </video>
+            </div>
+
+            <!-- EXCLUSIVE ROOM OWNER CONTROLS -->
+            <div id="ownerControlsPanel" class="hidden glass-card p-4 rounded-3xl border-2 border-brand-red space-y-4">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-black text-brand-red uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-crown text-white text-sm"></i>
+                        <span>دەسەڵاتێن خۆدانێ ژوورێ</span>
+                    </h4>
+                    
+                    <select id="selectVideoQuality" onchange="changeVideoQualityBadge(this.value)" class="bg-black border border-gray-800 text-xs text-white px-2 py-1 rounded-xl font-black focus:outline-none">
+                        <option value="4K ULTRA HD">4K Ultra</option>
+                        <option value="1080p FULL HD">1080p HD</option>
+                        <option value="720p HD">720p HD</option>
+                    </select>
+                </div>
+
+                <!-- EXCLUSIVE DELETE FILM BUTTON -->
+                <button onclick="ownerDeleteFilm()" class="w-full bg-brand-red hover:bg-brand-brightRed text-white font-black py-3 rounded-2xl text-xs border border-white/30 transition flex items-center justify-center gap-2 shadow-lg glow-red-button active:scale-95">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>فلمی ژێببە (Delete Film)</span>
+                </button>
+
+                <!-- UPLOAD / LINK CONTROLS -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <label for="inputVideoFile" class="flex items-center justify-center gap-2 p-3 bg-black border border-dashed border-brand-red rounded-2xl cursor-pointer text-xs font-black text-white text-center active:scale-95">
+                        <i class="fa-solid fa-file-video text-brand-red"></i>
+                        <span>بارکرنا پەڕگەیێ</span>
+                    </label>
+                    <input type="file" id="inputVideoFile" accept="video/*" onchange="handleOwnerVideoFileUpload(this)" class="hidden">
+
+                    <button onclick="promptOwnerVideoUrl()" class="flex items-center justify-center gap-2 p-3 bg-black border border-gray-800 hover:border-brand-red rounded-2xl text-xs font-black text-white text-center active:scale-95">
+                        <i class="fa-solid fa-link text-brand-red"></i>
+                        <span>لێنکێ فلمی</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat & Members Tabs -->
+            <div class="glass-card p-4 rounded-3xl border border-gray-800 flex flex-col h-[380px]">
+                <div class="flex border-b border-gray-800 mb-3 text-sm font-black">
+                    <button id="tabBtnChat" onclick="switchSidebarTab('chat')" class="flex-1 py-2 text-brand-red border-b-2 border-brand-red transition">
+                        <i class="fa-solid fa-comments ml-1"></i> چات
+                    </button>
+                    <button id="tabBtnMembers" onclick="switchSidebarTab('members')" class="flex-1 py-2 text-gray-400 border-b-2 border-transparent transition">
+                        <i class="fa-solid fa-users ml-1"></i> ئامادەبوو (<span id="membersCount">1</span>)
+                    </button>
+                </div>
+
+                <!-- CHAT STREAM VIEW -->
+                <div id="sidebarChatView" class="flex-1 flex flex-col justify-between overflow-hidden">
+                    <div id="chatMessages" class="flex-1 overflow-y-auto space-y-3 pr-1 text-sm">
+                        <!-- Messages render dynamically -->
+                    </div>
+
+                    <form onsubmit="sendChatMessage(event)" class="flex gap-2 pt-3 border-t border-gray-800">
+                        <input type="text" id="chatInput" required placeholder="پەیاما خۆ بنڤیسە..." class="flex-1 bg-black border border-gray-800 focus:border-brand-red rounded-2xl px-4 py-2.5 text-sm text-white focus:outline-none font-bold">
+                        <button type="submit" class="bg-brand-red hover:bg-brand-brightRed text-white px-4 py-2.5 rounded-2xl text-base transition font-black active:scale-95">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- MEMBERS & MODERATION LIST -->
+                <div id="sidebarMembersView" class="hidden flex-1 overflow-y-auto space-y-3">
+                    <div id="roomMembersList" class="space-y-3">
+                        <!-- Real active room members render here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- USER PROFILE & OFFICIAL DEVELOPER CONTACTS -->
+        <section id="viewProfile" class="hidden space-y-6">
+            <!-- Profile Info Card -->
+            <div class="glass-card p-6 rounded-3xl border-2 border-brand-red shadow-2xl relative overflow-hidden">
+                <div class="flex items-center gap-4">
+                    <img id="profileAvatar" src="" class="w-20 h-20 rounded-full border-2 border-brand-red object-cover shadow-xl">
+
+                    <div class="flex-1 min-w-0">
+                        <h2 id="profileNickname" class="text-xl font-black text-white truncate">ناڤێ دیار</h2>
+                        <p id="profileUsername" class="text-sm font-black text-brand-red truncate">@username</p>
+                        <p class="text-xs text-gray-400 font-bold mt-1">ئەندامێ فەرمی ل BFilm</p>
+                    </div>
+                </div>
+
+                <!-- Account Actions -->
+                <div class="grid grid-cols-2 gap-3 mt-6 pt-6 border-t border-gray-800">
+                    <button onclick="openEditProfileModal()" class="bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white font-black py-3 px-3 rounded-2xl transition flex items-center justify-center gap-2 text-xs active:scale-95">
+                        <i class="fa-solid fa-user-pen text-brand-red"></i>
+                        <span>دەستکاری</span>
+                    </button>
+
+                    <button onclick="handleLogout()" class="bg-brand-darkRed hover:bg-red-900 border border-brand-red text-white font-black py-3 px-3 rounded-2xl transition flex items-center justify-center gap-2 text-xs shadow-lg glow-red-button active:scale-95">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>دەركەڤتن</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- OFFICIAL TELEGRAM & DEVELOPER CONTACT BADGES -->
+            <div class="glass-card p-5 rounded-3xl border border-gray-800 space-y-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-brand-red/20 text-brand-red flex items-center justify-center border border-brand-red">
+                        <i class="fa-brands fa-telegram text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-black text-white">گەشەپێدەر و کەنالێ فەرمی</h3>
+                        <p class="text-xs text-gray-400 font-bold">پەیوەندیکرن ب تێلیگرامی</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <!-- Telegram Developer Profile -->
+                    <a href="https://t.me/Biirhat0" target="_blank" class="flex items-center justify-between p-4 bg-black rounded-2xl border border-gray-800 hover:border-brand-red transition active:scale-95">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-telegram text-white text-3xl"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold">پڕۆفایلێ گەشەپێدەری</p>
+                                <p class="text-sm font-black text-white">@Biirhat0</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500"></i>
+                    </a>
+
+                    <!-- Telegram Official Channel -->
+                    <a href="https://t.me/bfilm25" target="_blank" class="flex items-center justify-between p-4 bg-black rounded-2xl border border-gray-800 hover:border-brand-red transition active:scale-95">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-telegram text-white text-3xl"></i>
+                            <div>
+                                <p class="text-xs text-gray-400 font-bold">کەنالێ فەرمی یێ تێلیگرامی</p>
+                                <p class="text-sm font-black text-white">bfilm25</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-gray-500"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- TOUCH-FRIENDLY BOTTOM MOBILE NAV BAR -->
+    <nav id="bottomNav" class="hidden fixed bottom-0 left-0 right-0 z-40 bg-black/95 backdrop-blur-2xl border-t-2 border-brand-red py-3 px-6 shadow-2xl">
+        <div class="max-w-md mx-auto flex items-center justify-around">
+            <button onclick="navigateTo('rooms')" id="navRoomsBtn" class="flex flex-col items-center gap-1 text-brand-red transition active:scale-95">
+                <i class="fa-solid fa-film text-xl"></i>
+                <span class="text-[11px] font-black">ژوورێن فلمی</span>
+            </button>
+            
+            <button onclick="openCreateRoomModal()" id="navCreateBtn" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition active:scale-95">
+                <div class="w-10 h-10 rounded-full bg-brand-red text-white flex items-center justify-center -mt-5 shadow-lg border-2 border-white glow-red-button">
+                    <i class="fa-solid fa-plus text-lg"></i>
+                </div>
+                <span class="text-[11px] font-black text-gray-300">دروستکرن</span>
+            </button>
+
+            <button onclick="navigateTo('profile')" id="navProfileBtn" class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition active:scale-95">
+                <i class="fa-solid fa-user text-xl"></i>
+                <span class="text-[11px] font-black">پڕۆفایل</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- CREATE ROOM MODAL -->
+    <div id="modalCreateRoom" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-4">
+        <div class="glass-card max-w-sm w-full p-6 rounded-3xl border-2 border-brand-red space-y-6 relative">
+            <button onclick="closeCreateRoomModal()" class="absolute top-5 left-5 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+
+            <h3 class="text-xl font-black text-white flex items-center gap-3">
+                <i class="fa-solid fa-plus-circle text-brand-red"></i>
+                <span>دروستکرنا ژوورەکا نوو</span>
+            </h3>
+
+            <form onsubmit="handleCreateRoom(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">ناڤێ ژوورێ</label>
+                    <input type="text" id="newRoomName" required class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white focus:outline-none font-bold" placeholder="ژوورا فیلما ئاکشن">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">جۆرێ ژوورێ</label>
+                    <select id="newRoomType" onchange="toggleRoomCodeInput(this.value)" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white font-black focus:outline-none">
+                        <option value="public">ژوورا گشتی (دیار د لۆبیێ دا)</option>
+                        <option value="private">ژوورا تایبەت (ب کۆدێ نهێنی)</option>
+                    </select>
+                </div>
+
+                <div id="containerRoomCode" class="hidden">
+                    <label class="block text-xs font-black text-white mb-2">کۆدێ ژوورێ (کۆدێ نهێنی)</label>
+                    <input type="text" id="newRoomCode" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white font-mono focus:outline-none font-bold" placeholder="م.ت. FILM123">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">لێنکێ فلمی (ئارەزوومەندانە)</label>
+                    <input type="url" id="newRoomVideoUrl" placeholder="https://domain.com/movie.mp4" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white focus:outline-none font-bold">
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="submit" class="flex-1 bg-brand-red hover:bg-brand-brightRed text-white font-black text-base py-3.5 rounded-2xl transition glow-red-button active:scale-95">
+                        دروست بکە
+                    </button>
+                    <button type="button" onclick="closeCreateRoomModal()" class="bg-gray-800 text-gray-200 text-sm font-black px-5 py-3.5 rounded-2xl transition">
+                        لادان
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT PROFILE MODAL -->
+    <div id="modalEditProfile" class="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl hidden items-center justify-center p-4">
+        <div class="glass-card max-w-sm w-full p-6 rounded-3xl border-2 border-brand-red space-y-6 relative">
+            <button onclick="closeEditProfileModal()" class="absolute top-5 left-5 text-gray-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+
+            <h3 class="text-xl font-black text-white flex items-center gap-3">
+                <i class="fa-solid fa-user-pen text-brand-red"></i>
+                <span>دەستکارییا زانیاریان</span>
+            </h3>
+
+            <form onsubmit="handleSaveProfileChanges(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">وێنەیێ پڕۆفایلی نوو</label>
+                    <div class="flex items-center gap-4">
+                        <img id="editProfileAvatarPreview" src="" class="w-14 h-14 rounded-full border-2 border-brand-red object-cover">
+                        <label for="inputEditAvatarFile" class="bg-gray-800 text-xs font-black px-4 py-3 rounded-xl cursor-pointer border border-gray-700 active:scale-95">
+                            هەلبژارتن
+                        </label>
+                        <input type="file" id="inputEditAvatarFile" accept="image/*" onchange="handleEditAvatarFileUpload(this)" class="hidden">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">ناڤێ دیار (Nickname)</label>
+                    <input type="text" id="editNickname" required class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white focus:outline-none font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">ناڤێ بکارئینەری (Username)</label>
+                    <input type="text" id="editUsername" required class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white focus:outline-none font-bold">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-black text-white mb-2">پەیڤا نهێنی نوو</label>
+                    <input type="password" id="editPassword" minlength="8" class="w-full bg-black border-2 border-gray-800 focus:border-brand-red rounded-2xl px-4 py-3 text-sm text-white focus:outline-none font-bold" placeholder="چالی بێلە ئەگەر نەگوڕی">
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="submit" class="flex-1 bg-brand-red hover:bg-brand-brightRed text-white font-black text-base py-3.5 rounded-2xl transition glow-red-button active:scale-95">
+                        تۆماربکە
+                    </button>
+                    <button type="button" onclick="closeEditProfileModal()" class="bg-gray-800 text-gray-200 text-sm font-black px-5 py-3.5 rounded-2xl transition">
+                        لادان
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toastNotification" class="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black text-white border-2 border-brand-red px-6 py-3 rounded-full shadow-2xl text-sm font-black hidden items-center gap-3 pointer-events-none transition duration-300 w-[90%] max-w-xs justify-center">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-green-500 text-lg"></i>
+        <span id="toastMessage" class="truncate">پەیام</span>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80";
+
+        // Global State
+        let currentUser = null;
+        let selectedAvatarUrl = DEFAULT_AVATAR;
+        let editAvatarTempUrl = null;
+        let activeRoom = null;
+        let isMicActive = false;
+        let mediaStream = null;
+
+        // Persistent Dynamically Created Rooms Store
+        let publicRooms = JSON.parse(localStorage.getItem('bfilm_saved_rooms') || '[]');
+
+        const roomChats = {};
+        const roomMembersState = {};
+
+        window.addEventListener('DOMContentLoaded', () => {
+            checkUserSession();
+            renderPublicRooms();
+        });
+
+        function saveRoomsToStorage() {
+            localStorage.setItem('bfilm_saved_rooms', JSON.stringify(publicRooms));
+        }
+
+        function checkUserSession() {
+            const savedSession = localStorage.getItem('bfilm_session');
+            if (savedSession) {
+                try {
+                    currentUser = JSON.parse(savedSession);
+                    setupUserUI();
+                    navigateTo('rooms');
+                } catch (e) {
+                    localStorage.removeItem('bfilm_session');
+                    showAuthView();
+                }
+            } else {
+                showAuthView();
+            }
+        }
+
+        function showAuthView() {
+            document.getElementById('viewAuth').classList.remove('hidden');
+            document.getElementById('viewRooms').classList.add('hidden');
+            document.getElementById('viewActiveRoom').classList.add('hidden');
+            document.getElementById('viewProfile').classList.add('hidden');
+            document.getElementById('headerUserArea').classList.add('hidden');
+            document.getElementById('headerUserArea').classList.remove('flex');
+            document.getElementById('bottomNav').classList.add('hidden');
+        }
+
+        function setupUserUI() {
+            if (!currentUser) return;
+
+            document.getElementById('viewAuth').classList.add('hidden');
+
+            document.getElementById('headerAvatar').src = currentUser.avatar || DEFAULT_AVATAR;
+            document.getElementById('headerNickname').innerText = currentUser.nickname;
+            document.getElementById('headerUserArea').classList.remove('hidden');
+            document.getElementById('headerUserArea').classList.add('flex');
+
+            document.getElementById('profileAvatar').src = currentUser.avatar || DEFAULT_AVATAR;
+            document.getElementById('profileNickname').innerText = currentUser.nickname;
+            document.getElementById('profileUsername').innerText = `@${currentUser.username}`;
+
+            document.getElementById('bottomNav').classList.remove('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const btnLogin = document.getElementById('btnTabLogin');
+            const btnSignup = document.getElementById('btnTabSignup');
+            const formLogin = document.getElementById('formLogin');
+            const formSignup = document.getElementById('formSignup');
+
+            if (tab === 'login') {
+                btnLogin.classList.add('text-brand-red', 'border-brand-red');
+                btnLogin.classList.remove('text-gray-400', 'border-transparent');
+                btnSignup.classList.remove('text-brand-red', 'border-brand-red');
+                btnSignup.classList.add('text-gray-400', 'border-transparent');
+
+                formLogin.classList.remove('hidden');
+                formSignup.classList.add('hidden');
+            } else {
+                btnSignup.classList.add('text-brand-red', 'border-brand-red');
+                btnSignup.classList.remove('text-gray-400', 'border-transparent');
+                btnLogin.classList.remove('text-brand-red', 'border-brand-red');
+                btnLogin.classList.add('text-gray-400', 'border-transparent');
+
+                formSignup.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+
+        function handleAvatarFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    selectedAvatarUrl = e.target.result;
+                    document.getElementById('signupAvatarPreview').src = selectedAvatarUrl;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleSignup(e) {
+            e.preventDefault();
+            const nickname = document.getElementById('signupNickname').value.trim();
+            const username = document.getElementById('signupUsername').value.trim().toLowerCase();
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+
+            if (password.length < 8) {
+                showToast("پەیڤا نهێنی دڤێت ل کێمتری 8 پیتان بیت!", true);
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                showToast("پەیڤێن نهێنی وەکی ئێک نینن!", true);
+                return;
+            }
+
+            const userObj = {
+                nickname,
+                username,
+                password,
+                avatar: selectedAvatarUrl
+            };
+
+            localStorage.setItem(`bfilm_account_${username}`, JSON.stringify(userObj));
+            currentUser = userObj;
+            localStorage.setItem('bfilm_session', JSON.stringify(currentUser));
+
+            setupUserUI();
+            navigateTo('rooms');
+            showToast("تۆ ب سەرکەفتیانە تۆماربووی!");
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim().toLowerCase();
+            const password = document.getElementById('loginPassword').value;
+
+            const storedAccount = localStorage.getItem(`bfilm_account_${username}`);
+            if (!storedAccount) {
+                showToast("ئەڤ هەژمارە نینە!", true);
+                return;
+            }
+
+            const parsedObj = JSON.parse(storedAccount);
+            if (parsedObj.password !== password) {
+                showToast("پەیڤا نهێنی شاشە!", true);
+                return;
+            }
+
+            currentUser = parsedObj;
+            localStorage.setItem('bfilm_session', JSON.stringify(currentUser));
+            setupUserUI();
+            navigateTo('rooms');
+            showToast(`بەخێر بێی ڤە ${currentUser.nickname}!`);
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('bfilm_session');
+            currentUser = null;
+            if (isMicActive) toggleMicrophone();
+            showAuthView();
+            showToast("تۆ ب سەرکەفتیانە دەركەفتی");
+        }
+
+        function navigateTo(view) {
+            if (!currentUser) {
+                showAuthView();
+                return;
+            }
+
+            document.getElementById('viewAuth').classList.add('hidden');
+            document.getElementById('viewRooms').classList.add('hidden');
+            document.getElementById('viewActiveRoom').classList.add('hidden');
+            document.getElementById('viewProfile').classList.add('hidden');
+
+            document.getElementById('navRoomsBtn').classList.replace('text-brand-red', 'text-gray-400');
+            document.getElementById('navProfileBtn').classList.replace('text-brand-red', 'text-gray-400');
+
+            if (view === 'rooms') {
+                document.getElementById('viewRooms').classList.remove('hidden');
+                document.getElementById('navRoomsBtn').classList.replace('text-gray-400', 'text-brand-red');
+            } else if (view === 'profile') {
+                document.getElementById('viewProfile').classList.remove('hidden');
+                document.getElementById('navProfileBtn').classList.replace('text-gray-400', 'text-brand-red');
+            }
+        }
+
+        function renderPublicRooms(filterQuery = '') {
+            const grid = document.getElementById('publicRoomsGrid');
+            grid.innerHTML = '';
+
+            let activePublics = publicRooms.filter(r => r.type === 'public');
+            if (filterQuery) {
+                activePublics = activePublics.filter(r => r.name.toLowerCase().includes(filterQuery.toLowerCase()));
+            }
+
+            document.getElementById('publicRoomsCountTag').innerText = `${activePublics.length} ژوور`;
+
+            // Display Mobile Clean Empty Prompt if no user rooms exist
+            if (activePublics.length === 0) {
+                grid.innerHTML = `
+                    <div class="glass-card p-8 rounded-3xl border border-gray-800 text-center space-y-4">
+                        <i class="fa-solid fa-film text-brand-red text-5xl"></i>
+                        <h4 class="text-xl font-black text-white">چ ژوورێن گشتی نینن!</h4>
+                        <p class="text-xs text-gray-400 font-bold">تۆ دشێی ئێکەمین ژوور دروست بکەی ب کەتنا سەر دوکما دروستکرنا ژوورێ!</p>
+                        <button onclick="openCreateRoomModal()" class="bg-brand-red hover:bg-brand-brightRed text-white font-black text-sm px-6 py-3 rounded-2xl transition glow-red-button inline-flex items-center gap-2 active:scale-95">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>ژوورەکێ دروست بکە</span>
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            activePublics.forEach(room => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-5 rounded-3xl border border-gray-800 hover:border-brand-red transition flex items-center justify-between gap-4 shadow-lg active:scale-95 cursor-pointer";
+                card.onclick = () => enterRoom(room.id);
+
+                card.innerHTML = `
+                    <div class="space-y-1 min-w-0 flex-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono font-black bg-brand-red/20 text-brand-red px-2 py-0.5 rounded-lg border border-brand-red/30">
+                                ${room.code}
+                            </span>
+                            <span class="text-xs text-gray-400 font-black">
+                                <i class="fa-solid fa-users ml-1"></i> ${room.count} ئەندام
+                            </span>
+                        </div>
+                        <h4 class="text-base font-black text-white truncate">${room.name}</h4>
+                        <p class="text-xs text-gray-400 font-bold">خۆدان: <span class="text-white">${room.owner}</span></p>
+                    </div>
+
+                    <div class="w-10 h-10 rounded-2xl bg-brand-red text-white flex items-center justify-center flex-shrink-0 glow-red-button">
+                        <i class="fa-solid fa-play text-xs"></i>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterRooms() {
+            const query = document.getElementById('searchRoomsInput').value.trim();
+            renderPublicRooms(query);
+        }
+
+        function enterRoom(roomId) {
+            const room = publicRooms.find(r => r.id === roomId);
+            if (!room) return;
+
+            activeRoom = room;
+
+            document.getElementById('viewRooms').classList.add('hidden');
+            document.getElementById('viewProfile').classList.add('hidden');
+            document.getElementById('viewActiveRoom').classList.remove('hidden');
+
+            document.getElementById('activeRoomTitle').innerText = room.name;
+            document.getElementById('activeRoomOwner').innerText = `خۆدان: ${room.owner}`;
+            document.getElementById('activeRoomCodeBadge').innerText = room.code;
+            document.getElementById('activeRoomPrivacyBadge').innerText = room.type === 'public' ? 'گشتی' : 'تایبەت';
+
+            const video = document.getElementById('mainVideoPlayer');
+            const source = document.getElementById('mainVideoSource');
+            source.src = room.videoUrl || '';
+            video.load();
+
+            // Strictly NO dummy users. Only real user joining state.
+            if (!roomMembersState[room.id]) {
+                roomMembersState[room.id] = [
+                    { 
+                        id: 'usr_' + Date.now(), 
+                        name: currentUser.nickname, 
+                        avatar: currentUser.avatar || DEFAULT_AVATAR, 
+                        isOwner: currentUser.nickname === room.owner, 
+                        isMuted: false, 
+                        role: currentUser.nickname === room.owner ? 'Owner' : 'Member' 
+                    }
+                ];
+            } else {
+                const exists = roomMembersState[room.id].some(m => m.name === currentUser.nickname);
+                if (!exists) {
+                    roomMembersState[room.id].push({
+                        id: 'usr_' + Date.now(),
+                        name: currentUser.nickname,
+                        avatar: currentUser.avatar || DEFAULT_AVATAR,
+                        isOwner: currentUser.nickname === room.owner,
+                        isMuted: false,
+                        role: currentUser.nickname === room.owner ? 'Owner' : 'Member'
+                    });
+                }
+            }
+
+            const ownerPanel = document.getElementById('ownerControlsPanel');
+            if (currentUser && currentUser.nickname === room.owner) {
+                ownerPanel.classList.remove('hidden');
+            } else {
+                ownerPanel.classList.add('hidden');
+            }
+
+            renderChatMessages();
+            renderRoomMembers();
+        }
+
+        function leaveActiveRoom() {
+            const video = document.getElementById('mainVideoPlayer');
+            video.pause();
+            activeRoom = null;
+            if (isMicActive) toggleMicrophone();
+            navigateTo('rooms');
+        }
+
+        function handleJoinByCode(e) {
+            e.preventDefault();
+            const codeInput = document.getElementById('inputRoomCode').value.trim().toUpperCase();
+            const room = publicRooms.find(r => r.code.toUpperCase() === codeInput);
+
+            if (room) {
+                enterRoom(room.id);
+                document.getElementById('inputRoomCode').value = '';
+            } else {
+                showToast("کۆدێ ژوورێ شاشە یان نینە!", true);
+            }
+        }
+
+        // EXCLUSIVE OWNER DELETE FILM FUNCTION
+        function ownerDeleteFilm() {
+            if (!activeRoom || currentUser.nickname !== activeRoom.owner) {
+                showToast("تەنها خۆدانێ ژوورێ دەسەڵات هەیە!", true);
+                return;
+            }
+
+            const video = document.getElementById('mainVideoPlayer');
+            const source = document.getElementById('mainVideoSource');
+            
+            video.pause();
+            source.src = '';
+            video.load();
+
+            if (activeRoom) {
+                activeRoom.videoUrl = '';
+                saveRoomsToStorage();
+            }
+
+            showToast("فلم ژێبر ب سەرکەفتیانە!");
+        }
+
+        function adjustVoiceVolume(val) {
+            document.getElementById('voiceVolTag').innerText = `${val}%`;
+        }
+
+        function handleOwnerVideoFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileUrl = URL.createObjectURL(file);
+                
+                const video = document.getElementById('mainVideoPlayer');
+                const source = document.getElementById('mainVideoSource');
+                source.src = fileUrl;
+                video.load();
+
+                if (activeRoom) {
+                    activeRoom.videoUrl = fileUrl;
+                    saveRoomsToStorage();
+                }
+                showToast("فلم ب سەرکەفتیانە هاتە بارکرن!");
+            }
+        }
+
+        function promptOwnerVideoUrl() {
+            const url = prompt("لێنکێ ڕاستەوخۆ یێ فلمی بنڤیسە (MP4):");
+            if (url && url.trim()) {
+                const video = document.getElementById('mainVideoPlayer');
+                const source = document.getElementById('mainVideoSource');
+                source.src = url.trim();
+                video.load();
+
+                if (activeRoom) {
+                    activeRoom.videoUrl = url.trim();
+                    saveRoomsToStorage();
+                }
+                showToast("لێنکێ فلمی هاتە دانان!");
+            }
+        }
+
+        function changeVideoQualityBadge(val) {
+            document.getElementById('badgeVideoQuality').innerText = val;
+            showToast(`کوالیتی: ${val}`);
+        }
+
+        function toggleRoomCodeInput(val) {
+            const container = document.getElementById('containerRoomCode');
+            const codeInput = document.getElementById('newRoomCode');
+            if (val === 'private') {
+                container.classList.remove('hidden');
+                codeInput.required = true;
+            } else {
+                container.classList.add('hidden');
+                codeInput.required = false;
+            }
+        }
+
+        function handleCreateRoom(e) {
+            e.preventDefault();
+            const name = document.getElementById('newRoomName').value.trim();
+            const type = document.getElementById('newRoomType').value;
+            let code = document.getElementById('newRoomCode').value.trim().toUpperCase();
+            const url = document.getElementById('newRoomVideoUrl').value.trim();
+
+            if (type === 'public' && !code) {
+                code = 'PUB' + Math.floor(100 + Math.random() * 900);
+            }
+
+            const newRoom = {
+                id: 'room_' + Date.now(),
+                name: name,
+                type: type,
+                code: code,
+                owner: currentUser.nickname,
+                count: 1,
+                videoUrl: url
+            };
+
+            publicRooms.unshift(newRoom);
+            saveRoomsToStorage();
+            renderPublicRooms();
+            closeCreateRoomModal();
+            enterRoom(newRoom.id);
+            showToast("ژوور دروست بوو ب سەرکەفتیانە!");
+        }
+
+        function openCreateRoomModal() {
+            document.getElementById('modalCreateRoom').classList.remove('hidden');
+            document.getElementById('modalCreateRoom').classList.add('flex');
+        }
+
+        function closeCreateRoomModal() {
+            document.getElementById('modalCreateRoom').classList.add('hidden');
+            document.getElementById('modalCreateRoom').classList.remove('flex');
+        }
+
+        function openEditProfileModal() {
+            if (!currentUser) return;
+            document.getElementById('editNickname').value = currentUser.nickname;
+            document.getElementById('editUsername').value = currentUser.username;
+            document.getElementById('editProfileAvatarPreview').src = currentUser.avatar || DEFAULT_AVATAR;
+            document.getElementById('modalEditProfile').classList.remove('hidden');
+            document.getElementById('modalEditProfile').classList.add('flex');
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('modalEditProfile').classList.add('hidden');
+            document.getElementById('modalEditProfile').classList.remove('flex');
+        }
+
+        function handleEditAvatarFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    editAvatarTempUrl = e.target.result;
+                    document.getElementById('editProfileAvatarPreview').src = editAvatarTempUrl;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function handleSaveProfileChanges(e) {
+            e.preventDefault();
+            const newNick = document.getElementById('editNickname').value.trim();
+            const newUser = document.getElementById('editUsername').value.trim().toLowerCase();
+            const newPass = document.getElementById('editPassword').value;
+
+            currentUser.nickname = newNick;
+            currentUser.username = newUser;
+            if (newPass && newPass.length >= 8) currentUser.password = newPass;
+            if (editAvatarTempUrl) currentUser.avatar = editAvatarTempUrl;
+
+            localStorage.setItem(`bfilm_account_${newUser}`, JSON.stringify(currentUser));
+            localStorage.setItem('bfilm_session', JSON.stringify(currentUser));
+
+            setupUserUI();
+            closeEditProfileModal();
+            showToast("زانیاری ب سەرکەفتیانە نۆژەن بوون!");
+        }
+
+        function copyRoomCode() {
+            if (!activeRoom) return;
+            const tempInput = document.createElement('input');
+            tempInput.value = activeRoom.code;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+            showToast(`کۆد (${activeRoom.code}) کۆپی بوو!`);
+        }
+
+        async function toggleMicrophone() {
+            const btn = document.getElementById('btnToggleMic');
+            const icon = document.getElementById('iconMic');
+            const text = document.getElementById('textMic');
+
+            if (!isMicActive) {
+                try {
+                    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    isMicActive = true;
+                    btn.classList.replace('bg-gray-900', 'bg-brand-red');
+                    btn.classList.replace('border-gray-700', 'border-white');
+                    icon.className = 'fa-solid fa-microphone text-white animate-pulse text-sm';
+                    text.innerText = 'دەنگ (ڤەکری)';
+                    showToast("مایکرۆفۆن ڤەبوو");
+                } catch (err) {
+                    showToast("مایکرۆفۆن نەهاتە ڤەکرن!", true);
+                }
+            } else {
+                if (mediaStream) {
+                    mediaStream.getTracks().forEach(track => track.stop());
+                }
+                isMicActive = false;
+                btn.classList.replace('bg-brand-red', 'bg-gray-900');
+                btn.classList.replace('border-white', 'border-gray-700');
+                icon.className = 'fa-solid fa-microphone-slash text-brand-red text-sm';
+                text.innerText = 'دەنگ';
+                showToast("مایکرۆفۆن داخست بوو");
+            }
+            renderRoomMembers();
+        }
+
+        function switchSidebarTab(tab) {
+            const btnChat = document.getElementById('tabBtnChat');
+            const btnMembers = document.getElementById('tabBtnMembers');
+            const chatView = document.getElementById('sidebarChatView');
+            const membersView = document.getElementById('sidebarMembersView');
+
+            if (tab === 'chat') {
+                btnChat.classList.add('text-brand-red', 'border-brand-red');
+                btnChat.classList.remove('text-gray-400', 'border-transparent');
+                btnMembers.classList.remove('text-brand-red', 'border-brand-red');
+                btnMembers.classList.add('text-gray-400', 'border-transparent');
+
+                chatView.classList.remove('hidden');
+                membersView.classList.add('hidden');
+            } else {
+                btnMembers.classList.add('text-brand-red', 'border-brand-red');
+                btnMembers.classList.remove('text-gray-400', 'border-transparent');
+                btnChat.classList.remove('text-brand-red', 'border-brand-red');
+                btnChat.classList.add('text-gray-400', 'border-transparent');
+
+                membersView.classList.remove('hidden');
+                chatView.classList.add('hidden');
+            }
+        }
+
+        function renderRoomMembers() {
+            if (!activeRoom) return;
+            const list = document.getElementById('roomMembersList');
+            list.innerHTML = '';
+
+            const members = roomMembersState[activeRoom.id] || [];
+            document.getElementById('membersCount').innerText = members.length;
+
+            const isOwner = currentUser && currentUser.nickname === activeRoom.owner;
+
+            members.forEach(m => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-3 rounded-2xl bg-black border border-gray-800";
+                
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${m.avatar}" class="w-10 h-10 rounded-full border border-brand-red object-cover">
+                        <div>
+                            <span class="text-sm text-gray-100 font-black">${m.name}</span>
+                            ${m.role ? `<span class="text-[10px] bg-brand-red/20 text-brand-red px-2 py-0.5 rounded font-black mr-1">${m.role}</span>` : ''}
+                        </div>
+                    </div>
+
+                    ${m.name === currentUser?.nickname && isMicActive ? `
+                        <div class="flex items-center gap-1 px-2 py-1 bg-brand-red/20 rounded-full border border-brand-red">
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                        </div>
+                    ` : ''}
+
+                    ${isOwner && m.name !== currentUser?.nickname ? `
+                        <button onclick="kickMember('${m.id}')" class="text-xs text-brand-red bg-brand-red/10 px-2.5 py-1.5 rounded-xl border border-brand-red/30">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </button>
+                    ` : ''}
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function kickMember(memberId) {
+            if (!activeRoom || currentUser.nickname !== activeRoom.owner) return;
+            roomMembersState[activeRoom.id] = roomMembersState[activeRoom.id].filter(m => m.id !== memberId);
+            renderRoomMembers();
+            showToast("ئەندام هاتە دەرکرن!");
+        }
+
+        function renderChatMessages() {
+            if (!activeRoom) return;
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '';
+
+            const msgs = roomChats[activeRoom.id] || [];
+            msgs.forEach(msg => {
+                const isMe = msg.sender === currentUser?.nickname;
+                const msgAvatar = msg.avatar || DEFAULT_AVATAR;
+                
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `flex gap-2 ${isMe ? 'flex-row-reverse' : 'flex-row'} items-end my-2`;
+
+                msgDiv.innerHTML = `
+                    <img src="${msgAvatar}" class="w-8 h-8 rounded-full border border-brand-red object-cover flex-shrink-0">
+                    <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[80%]">
+                        <span class="text-[10px] font-black text-gray-400 mb-0.5 px-1">${msg.sender}</span>
+                        <div class="${isMe ? 'bg-brand-red text-white' : 'bg-gray-800 text-gray-100'} px-4 py-2.5 rounded-2xl break-words text-xs shadow font-bold">
+                            ${msg.text}
+                        </div>
+                    </div>
+                `;
+                chatBox.appendChild(msgDiv);
+            });
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function sendChatMessage(e) {
+            e.preventDefault();
+            if (!activeRoom) return;
+
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            if (!roomChats[activeRoom.id]) {
+                roomChats[activeRoom.id] = [];
+            }
+
+            roomChats[activeRoom.id].push({
+                sender: currentUser.nickname,
+                avatar: currentUser.avatar || DEFAULT_AVATAR,
+                text: text
+            });
+
+            input.value = '';
+            renderChatMessages();
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+
+            toastMessage.innerText = message;
+            toastIcon.className = isError ? "fa-solid fa-circle-exclamation text-brand-red text-lg" : "fa-solid fa-circle-check text-green-500 text-lg";
+
+            toast.classList.remove('hidden');
+            toast.classList.add('flex');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+                toast.classList.remove('flex');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
